@@ -31,8 +31,8 @@ export function TextMessage({ text, isUser }: TextMessageProps) {
     >
       <div
         className={clsx("rounded-[20px]", {
-          "px-4 max-w-[90%] ml-4 text-stone--900 bg-[#ededed]": isUser,
-          "px-4 max-w-[90%] mr-4 text-black bg-white": !isUser,
+          "px-4 max-w-[90%] ml-4 text-stone-900 dark:text-stone-900 bg-[#ededed]": isUser, 
+          "px-4 max-w-[90%] mr-4 text-black bg-white dark:bg-gray-800 dark:text-white": !isUser, 
         })}
       >
         <ReactMarkdown components={{ a: CustomLink }}>{text}</ReactMarkdown>
