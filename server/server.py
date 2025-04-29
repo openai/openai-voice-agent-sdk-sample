@@ -2,7 +2,7 @@ import time
 from collections.abc import AsyncIterator
 from logging import getLogger
 from typing import Any, Dict
-
+import json
 from agents import Runner, trace
 from agents.voice import (
     TTSModelSettings,
@@ -21,6 +21,7 @@ from app.utils import (
     is_sync_message,
     is_text_output,
     process_inputs,
+    register_task_function,
 )
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -43,6 +44,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 class Workflow(VoiceWorkflowBase):
     def __init__(self, connection: WebsocketHelper):
@@ -67,12 +69,36 @@ class Workflow(VoiceWorkflowBase):
         await self.connection.text_output_complete(output, is_done=True)
 
 
+message_queue = []
+
+
+def update_task_function(connection: WebsocketHelper):
+    async def update_task(task_id: int, title: str, status: str, message: str):
+        await connection.websocket.send_text(
+            json.dumps(
+                {
+                    "type": "task.updated",
+                    "task": {
+                        "id": task_id,
+                        "title": title,
+                        "status": status,
+                        "messages": [message],
+                    },
+                }
+            )
+        )
+
+    return update_task
+
+
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     with trace("Voice Agent Chat"):
         await websocket.accept()
         connection = WebsocketHelper(websocket, [], starting_agent)
         audio_buffer = []
+
+        register_task_function(update_task_function(connection))
 
         workflow = Workflow(connection)
         while True:
@@ -81,6 +107,20 @@ async def websocket_endpoint(websocket: WebSocket):
             except WebSocketDisconnect:
                 print("Client disconnected")
                 return
+
+            # await connection.websocket.send_text(
+            #     json.dumps(
+            #         {
+            #             "type": "task.updated",
+            #             "task": {
+            #                 "id": 1,
+            #                 "title": "Sample Task",
+            #                 "status": "pending",
+            #                 "messages": [],
+            #             },
+            #         }
+            #     )
+            # )
 
             # Handle text based messages
             if is_sync_message(message):

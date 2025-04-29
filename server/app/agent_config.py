@@ -4,6 +4,7 @@ from agents import Agent, WebSearchTool, function_tool
 from agents.tool import UserLocation
 
 import app.mock_api as mock_api
+from app.utils import update_task_function
 
 STYLE_INSTRUCTIONS = "Use a conversational tone and write in a chat style without formal formatting or lists and do not use any emojis."
 
@@ -17,6 +18,11 @@ def get_past_orders():
 def submit_refund_request(order_number: str):
     """Confirm with the user first"""
     return mock_api.submit_refund_request(order_number)
+
+
+@function_tool
+def update_task(task_id: int, title: str, status: str, message: str):
+    return update_task_function(task_id, title, status, message)
 
 
 customer_support_agent = Agent(
@@ -41,4 +47,11 @@ triage_agent = Agent(
     handoffs=[stylist_agent, customer_support_agent],
 )
 
-starting_agent = triage_agent
+task_agent = Agent(
+    name="Task Agent",
+    model="gpt-4o-mini",
+    instructions=f"You are a friendly assistant.",
+    tools=[update_task],
+)
+
+starting_agent = task_agent

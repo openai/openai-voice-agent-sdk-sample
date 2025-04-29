@@ -7,10 +7,12 @@ export function useWebsocket({
   url,
   onNewAudio,
   onAudioDone,
+  onWsMessage,
 }: {
   url?: string;
   onNewAudio?: (audio: Int16Array<ArrayBuffer>) => void;
   onAudioDone?: () => void;
+  onWsMessage?: (message: string) => void;
 } = {}) {
   url =
     url ??
@@ -36,6 +38,9 @@ export function useWebsocket({
       console.error("Websocket error", event);
     });
     ws.addEventListener("message", (event) => {
+      if (typeof onWsMessage === "function") {
+        onWsMessage(event.data);
+      }
       const data = JSON.parse(event.data);
       if (data.type === "history.updated") {
         if (data.inputs[data.inputs.length - 1].role !== "user") {

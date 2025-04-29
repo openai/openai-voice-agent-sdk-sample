@@ -12,6 +12,13 @@ from agents.voice import AudioInput, VoiceStreamEvent, VoiceStreamEventAudio
 from fastapi import WebSocket
 from openai.types.responses import ResponseTextDeltaEvent
 
+update_task_function = None
+
+
+def register_task_function(function):
+    global update_task_function
+    update_task_function = function
+
 
 def transform_data_to_events(audio_np: np.ndarray) -> dict:
     return {
