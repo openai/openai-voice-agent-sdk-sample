@@ -29,14 +29,14 @@ export function Composer({
 
   return (
     <div className="flex flex-row relative px-5 py-6 w-full max-w-2xl">
-      <div className="flex flex-row gap-2 w-full relative border-2 border-gray-100 rounded-[32px] focus:outline-none pl-6 pr-1">
+      <div className="flex flex-row gap-2 w-full relative border-2 border-gray-100 rounded-[32px] focus:outline-none pl-6 pr-1 bg-white dark:bg-gray-900 dark:border-gray-700">
         <textarea
           ref={textareaRef}
           value={prompt}
           rows={1}
           onChange={(e) => setPrompt(e.target.value)}
           placeholder="Ask a question"
-          className="py-3 flex-grow resize-none overflow-hidden focus:outline-none"
+          className="py-3 flex-grow resize-none overflow-hidden focus:outline-none bg-white text-black dark:bg-gray-900 dark:text-white"
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
