@@ -18,7 +18,7 @@ export function useAudio() {
 
   useEffect(() => {
     async function init() {
-      wavRecorder.current = new WavRecorder({ sampleRate: 24000 });
+      wavRecorder.current = new WavRecorder();
       await wavRecorder.current.begin();
       setAudioRecorderIsReady(true);
       wavPlayer.current = new WavStreamPlayer({ sampleRate: 24000 });
